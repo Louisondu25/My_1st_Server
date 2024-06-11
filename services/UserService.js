@@ -107,7 +107,14 @@ module.exports.findOneUser = function (user_id, callback) {
 };
 
 module.exports.findManyUsers = function (users_id, callback) {
-  if (users_id && users_id.length > 0) {
+  if (
+    users_id &&
+    Array.isArray(users_id) &&
+    users_id.length > 0 &&
+    users_id.filter((e) => {
+      return mongoose.isValidObjectId(e);
+    }).length == users_id.length
+  ) {
     users_id = users_id.map((e) => {
       return new ObjectId(e);
     });
@@ -132,6 +139,26 @@ module.exports.findManyUsers = function (users_id, callback) {
           type_error: "error-mongo",
         });
       });
+  } else if (
+    users_id &&
+    Array.isArray(users_id) &&
+    users_id.length > 0 &&
+    users_id.filter((e) => {
+      return mongoose.isValidObjectId(e);
+    }).length != users_id.length
+  ) {
+    callback({
+      msg: "Tableau non conforme plusieurs éléments ne sont pas des ObjectId.",
+      type_error: "no-valid",
+      fields: users_id.filter((e) => {
+        return !mongoose.isValidObjectId(e);
+      }),
+    });
+  } else if (users_id && !Array.isArray(users_id)) {
+    callback({
+      msg: "L'argement n'est pas un tableau.",
+      type_error: "no-valid",
+    });
   } else {
     callback({ msg: "Tableau non conforme.", type_error: "no-valid" });
   }
@@ -247,21 +274,22 @@ module.exports.deleteOneUser = function (user_id, callback) {
 };
 
 module.exports.deleteManyUsers = function (users_id, callback) {
-  if (users_id && Array.isArray(users_id) && users_id.length > 0) {
-    users_id = users_id.map((e) => {
-      return new ObjectId(e);
-    });
-    User.deleteMany({ _id: users_id })
-      .then((value) => {
-        callback(null, value);
-      })
-      .catch((err) => {
-        callback({
-          msg: "Erreur mongo suppression.",
-          type_error: "error-mongo",
-        });
-      });
-  } else {
-    callback({ msg: "Tableau d'id invalide.", type_error: "no-valid" });
-  }
+     if (users_id &&Array.isArray(users_id) &&users_id.length > 0 &&users_id.filter((e) => {
+         return mongoose.isValidObjectId(e);}).length == users_id.length) {
+       users_id = users_id.map((e) => {
+         return new ObjectId(e);
+       });
+       User.deleteMany({ _id: users_id })
+         .then((value) => {
+           callback(null, value);
+         })
+         .catch((err) => {
+           callback({
+             msg: "Erreur mongo suppression.",
+             type_error: "error-mongo",
+           });
+         });
+     } else {
+       callback({ msg: "Tableau d'id invalide.", type_error: "no-valid" });
+     }
 };

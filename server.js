@@ -1,50 +1,52 @@
 // Importe le module Express et le module Lodash
-const { express } = require("express");
+const express = require("express");
 const _ = require("lodash");
 
 // Importe le module body-parser
-const { bodyparser } = require("bodyparser");
+const bodyparser = require("body-parser");
 
 // Importe le fichier de configuration et le numéro de port
-const { config, port } = require("./config");
+const config = require("./config");
 
 // Crée une instance de l'application Express
 const app = express();
 
 // Utilise le middleware body-parser pour analyser les données JSON envoyées dans le corps des requêtes
-app.use(bodyparser.json);
+app.use(bodyparser.json());
+
+//Demarrage de la database
+require("./utils/database");
 
 // Importe le contrôleur pour les utilisateurs
-const Usercontroller = require("./Controllers/Usercontroller");
+const UserController = require("./controllers/UserController");
 
 // Définit une route pour ajouter un utilisateur
-app.post(`/user`, Usercontroller.addUser);
+app.post("/user", UserController.addOneUser);
 
 // Définit une route pour ajouter plusieurs utilisateurs
-app.post(`/user`, Usercontroller.addManyUsers);
-
-// Définit une route pour ajouter un utilisateur
-app.post(`/user`, Usercontroller.addUser);
+app.post(`/users`, UserController.addManyUsers);
 
 // Définit une route pour récupérer un utilisateur
-app.post(`/user`, Usercontroller.findOneUser);
+app.get(`/user/:id`, UserController.findOneUser);
 
 // Définit une route pour récupérer plusieurs utilisateurs
-app.post(`/user`, Usercontroller.findManyUsers);
+app.get(`/users`, UserController.findManyUsers);
 
 // Définit une route pour mettre à jour un utilisateur
-app.post(`/user`, Usercontroller.updateOneUser);
+app.put(`/user/:id`, UserController.updateOneUser);
 
 // Définit une route pour mettre à jour plusieurs utilisateurs
-app.post(`/user`, Usercontroller.updateManyUsers);
+app.put(`/users`, UserController.updateManyUsers);
 
 // Définit une route pour supprimer un utilisateur
-app.delete(`/user`, Usercontroller.deleteOneUser);
+app.delete(`/user/:id`, UserController.deleteOneUser);
 
 // Définit une route pour supprimer plusieurs utilisateurs
-app.delete(`/user`, Usercontroller.deleteManyUsers);
+app.delete(`/users`, UserController.deleteManyUsers);
 
 // Démarre le serveur et affiche un message de log
-app.listen(port, () => {
-  console.log(`${new Date().toLocaleString()}: Le serveur est démarré`);
+app.listen(config.port, () => {
+  console.log(
+    `${new Date().toLocaleString()}: Le serveur est démarré ${config.port}`
+  );
 });
