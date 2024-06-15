@@ -108,10 +108,7 @@ module.exports.findOneUser = function (user_id, callback) {
 
 module.exports.findManyUsers = function (users_id, callback) {
   if (
-    users_id &&
-    Array.isArray(users_id) &&
-    users_id.length > 0 &&
-    users_id.filter((e) => {
+    users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => {
       return mongoose.isValidObjectId(e);
     }).length == users_id.length
   ) {
@@ -205,13 +202,13 @@ module.exports.updateOneUser = function (user_id, update, callback) {
   }
 };
 
-module.exports.updateManyUsers = function (users_id, update, callback) {
-  if (users_id && Array.isArray(users_id) && users_id.length > 0) {
+module.exports.updateManyUsers = function(users_id, update, callback ) {
+  if (typeof users_id === 'object' && Array.isArray(users_id) && users_id.length > 0) {
     users_id = users_id.map((e) => {
       return new ObjectId(e);
     });
-    User.updateMany({ _id: users_id }, update, { runValidators: true })
-      .then((value) => {
+    User.updateMany({ _id: { $in: users_id } }, update, { runValidators: true })
+     .then((value) => {
         try {
           callback(null, value);
         } catch (e) {
@@ -219,13 +216,13 @@ module.exports.updateManyUsers = function (users_id, update, callback) {
           callback(e);
         }
       })
-      .catch((errors) => {
+     .catch((errors) => {
         errors = errors["errors"];
         var text = Object.keys(errors)
-          .map((e) => {
+         .map((e) => {
             return errors[e]["properties"]["message"];
           })
-          .join(" ");
+         .join(" ");
         var fields = _.transform(
           Object.keys(errors),
           function (result, value) {

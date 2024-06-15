@@ -152,26 +152,26 @@ module.exports.updateOneUser = function(req, res) {
 }
 
 // La fonction permet de modifier plusieurs utilisateurs.
-module.exports.updateManyUsers = function(req, res) {
-  const filter = req.body.filter;
-  const update = req.body.update;
-
-  UserService.updateManyUsers(filter, update, function(err, result) {
-    if (err && err.type_error == "no-found") {
-      res.statusCode = 404
-      res.send(err)
-    }
-    else if  (err && err.type_error == "no-valid") {
-      res.statusCode = 405
-      res.send(err)
-    } 
-    else if (err && err.type_error == "error-mongo") {
-      res.statusCode = 500
-      res.send(err)
-    }
-    else {
-      res.statusCode = 200
-      res.send(result)
-    }
-  })
+module.exports.updateManyUsers = function( req, res) {
+    var arg = req.query.id
+    if (arg && !Array.isArray(arg))
+        arg = [arg]
+    UserService.updateManyUsers(arg, function (err, value) {
+        if (err && err.type_error == "no-found") {
+            res.statusCode = 404
+            res.send(err)
+        }
+        else if  (err && err.type_error == "no-valid") {
+            res.statusCode = 405
+            res.send(err)
+        } 
+        else if (err && err.type_error == "error-mongo") {
+            res.statusCode = 500
+            res.send(err)
+        }
+        else {
+            res.statusCode = 200
+            res.send(value)
+        }
+    })
 }
