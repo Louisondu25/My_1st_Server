@@ -4,6 +4,7 @@ let expect = chai.expect;
 const _ = require("lodash");
 var id_user_valid = "";
 var tab_id_users = [];
+var users = []
 
 describe("addOneUser", () => {
   it("Utilisateur correct. - S", () => {
@@ -34,6 +35,7 @@ describe("addOneUser", () => {
       expect(err["fields"]["firstName"]).to.equal(
         "Path `firstName` is required."
       );
+      users.push(value)
     });
   });
 });
@@ -102,14 +104,15 @@ describe("addManyUsers", () => {
     UserService.addManyUsers(users_tab, function (err, value) {
       tab_id_users = _.map(value, "_id");
       expect(value).lengthOf(3);
+      users = [...value, ...users]
       done();
     });
   });
 });
 
-describe("findOneUser", () => {
+describe("findOneUserById", () => {
   it("Chercher un utilisateur existant correct. - S", (done) => {
-    UserService.findOneUser(id_user_valid, function (err, value) {
+    UserService.findOneUserById(id_user_valid, function (err, value) {
       expect(value).to.be.a("object");
       expect(value).to.haveOwnProperty("_id");
       expect(value).to.haveOwnProperty("lastName");
@@ -117,7 +120,7 @@ describe("findOneUser", () => {
     });
   });
   it("Chercher un utilisateur non-existant correct. - E", (done) => {
-    UserService.findOneUser("100", function (err, value) {
+    UserService.findOneUserById("100", function (err, value) {
       expect(err).to.haveOwnProperty("msg");
       expect(err).to.haveOwnProperty("type_error");
       expect(err["type_error"]).to.equal("no-valid");
@@ -126,9 +129,39 @@ describe("findOneUser", () => {
   });
 });
 
-describe("findManyUsers", () => {
+describe('findOneUser', () => {
+  it('Chercher un utilisateur avec un champ autorisé - S', (done) => {
+    UserService.findOneUser(['username', 'email'], users[0].username, (err, value) => {
+      expect(value).to.haveOwnProperty('firstName');
+      done();
+    });
+  });
+
+  it('Chercher un utilisateur avec un champ non autorisé - E', (done) => {
+    UserService.findOneUser(['username', 'firstName'], users[0].username, (err, value) => {
+      expect(err).to.haveOwnProperty('type_error');
+      done();
+    });
+  });
+
+  it('Chercher un utilisateur sans tableau de champ -E', (done) => {
+    UserService.findOneUser('email', users[0].username, (err, value) => {
+      expect(err).to.haveOwnProperty('type_error');
+      done();
+    });
+  });
+
+  it('chercher un utilisateurs inexistant', (done) => {
+    UserService.findOneUser(['email'], 'users[0].username', (err, value) => {
+      expect(err).to.haveOwnProperty('type_error');
+      done();
+    });
+  });
+});
+
+describe("findManyUserByIds", () => {
   it("Chercher des utilisateurs existant correct. - S", (done) => {
-    UserService.findManyUsers(tab_id_users, function (err, value) {
+    UserService.findManyUserByIds(tab_id_users, function (err, value) {
       expect(value).lengthOf(3);
       done();
     });
@@ -185,23 +218,23 @@ describe("updateOneUser", () => {
 
 describe("updateManyUsers", () => {
   it("Modifier plusieurs utilisateurs correctement. - S", (done) => {
-    UserService.updateManyUsers(tab_id_users,{ firstName: "Jean", lastName: "Luc" },function (err, value) {
-        expect(value).to.haveOwnProperty("modifiedCount");
-        expect(value).to.haveOwnProperty("matchedCount");
-        expect(value["matchedCount"]).to.be.equal(tab_id_users.length);
-        expect(value["modifiedCount"]).to.be.equal(tab_id_users.length);
-        done();
-      }
+    UserService.updateManyUsers(tab_id_users, { firstName: "Jean", lastName: "Luc" }, function (err, value) {
+      expect(value).to.haveOwnProperty("modifiedCount");
+      expect(value).to.haveOwnProperty("matchedCount");
+      expect(value["matchedCount"]).to.be.equal(tab_id_users.length);
+      expect(value["modifiedCount"]).to.be.equal(tab_id_users.length);
+      done();
+    }
     );
   });
   it("Modifier plusieurs utilisateurs avec id incorrect. - E", (done) => {
-    UserService.updateManyUsers("1200",{ firstName: "Jean", lastName: "Luc" },function (err, value) {
-        expect(err).to.be.a("object");
-        expect(err).to.haveOwnProperty("msg");
-        expect(err).to.haveOwnProperty("type_error");
-        expect(err["type_error"]).to.be.equal("no-valid");
-        done();
-      }
+    UserService.updateManyUsers("1200", { firstName: "Jean", lastName: "Luc" }, function (err, value) {
+      expect(err).to.be.a("object");
+      expect(err).to.haveOwnProperty("msg");
+      expect(err).to.haveOwnProperty("type_error");
+      expect(err["type_error"]).to.be.equal("no-valid");
+      done();
+    }
     );
   });
   it("Modifier plusieurs utilisateurs avec des champs requis vide. - E", (done) => {
@@ -226,7 +259,7 @@ describe("updateManyUsers", () => {
 describe("deleteOneUser", () => {
   it("Supprimer un utilisateur correctement. - S", () => {
     UserService.deleteOneUser(id_user_valid, function (err, value) {
-        expect(value).to.be.a('Object')
+      expect(value).to.be.a('Object')
       expect(value).to.haveOwnProperty("firstName");
       expect(value).to.haveOwnProperty("lastName");
     });

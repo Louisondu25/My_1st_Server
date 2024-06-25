@@ -9,7 +9,7 @@ var should = chai.should()
 
 chai.use(chaiHttp)
 
-describe("POST - /user", () => {
+describe("POST - /user/", () => {
     it("Ajouter un utilisateur. - S", (done) => {
         chai.request(server).post('/user').send({
             firstName: "luf",
@@ -238,6 +238,37 @@ describe('GET - /user/:id', () => {
             });
     });
 });
+
+describe('GET - /user', () => {
+    it('Chercher un utilisateur par un champ selectionné -S', (done) => {
+        chai.request(server).get('/user').query({fields: ['username'], values: users[0].username})
+        .end ((err, res) => {
+            res.should.status =(200)
+            done()
+        })
+    })
+    it('Chercher un utilisateur par un champ non autorisé -E', (done) => {
+        chai.request(server).get('/user').query({ fields: ['firstName'], values: users[0].username })
+            .end((err, res) => {
+                res.should.status = (405)
+                done()
+            })
+    })
+    it('Chercher un utilisateur sans query -E', (done) => {
+        chai.request(server).get('/user')
+            .end((err, res) => {
+                res.should.status = (405)
+                done()
+            })
+    })
+    it('Chercher un utilisateur inexistant -E', (done) => {
+        chai.request(server).get('/user').query({ fields: ['username'], values:'helloguys' })
+            .end((err, res) => {
+                res.should.status = (200)
+                done()
+            })
+    })
+})
 
 describe('GET - /users', () => {
     it('Rechercher plusieurs utilisateurs existants -S', (done) => {

@@ -101,7 +101,7 @@ module.exports.addManyUsers = async function (users, callback) {
   }
 };
 
-module.exports.findOneUser = function (user_id, callback) {
+module.exports.findOneUserById = function (user_id, callback) {
   if (user_id && mongoose.isValidObjectId(user_id)) {
     User.findById(user_id)
       .then((value) => {
@@ -129,7 +129,45 @@ module.exports.findOneUser = function (user_id, callback) {
   }
 };
 
-module.exports.findManyUsers = function (users_id, callback) {
+module.exports.findOneUser = function (tab_field, value, callback) {
+  var field_unique = ['username', 'email']
+
+  if (tab_field && Array.isArray(tab_field) && value && _.filter(tab_field, (e) => {
+    return field_unique.indexOf(e) == -1;
+  }).length == 0) {
+    var obj_find = []
+    _.forEach(tab_field, (e) => {
+      obj_find.push({ [e]: value })
+    })
+    User.findOne({ $or: obj_find }).then((value) => {
+      if (value) {
+        callback(null, value.toObject())
+      } else {
+        callback({ msg: 'Utilisateurs non trouvé.', type_error: 'no-found' })
+      }
+    }).catch((err) => {
+      callback({ msg: 'Erreur interne Mongo', type_error: 'error-mongo' })
+    })
+  }
+  else {
+    var msg = ''
+    if (!tab_field || !Array.isArray(tab_field)) {
+      msg += 'Les champs de recherches sont incorrecte'
+    }
+    if (!value) {
+      msg += msg ? 'Et la valeur de recherche est vide' : 'la valeur de recherche est vide'
+    }
+    if (_.filter(tab_field, (e) => { return field_unique.indexOf(e) === -1 }).length > 0) {
+      var field_not_autorized = _.filter(tab_field, (e) => { return field_unique.indexOf(e) === -1 })
+      msg += msg ? ` Et ${field_not_autorized.join(', ')}` : `Les champs ${field_not_autorized.join(', ')} ne sont pas des champs de recherche autorisés`
+      callback({ msg: msg, type_error: 'no-valid', field_not_autorized: field_not_autorized })
+    } else {
+      callback({ msg: msg, type_error: 'no-valid' })
+    }
+  }
+}
+
+module.exports.findManyUserByIds = function (users_id, callback) {
   if (
     users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => {
       return mongoose.isValidObjectId(e);
@@ -151,6 +189,7 @@ module.exports.findManyUsers = function (users_id, callback) {
           }
         } catch (e) {
           console.log(e);
+          callback(e)
         }
       })
       .catch((err) => {
@@ -209,8 +248,8 @@ module.exports.updateOneUser = function (user_id, update, callback) {
           const duplicateErrors = {
             msg: `Duplicate key error: ${field} must be unique.`,
             fields_with_error: [field],
-            fields: {[field]: `The ${field} is already taken.`},
-            type_error: 'duplicate' 
+            fields: { [field]: `The ${field} is already taken.` },
+            type_error: 'duplicate'
           }
           callback(duplicateErrors)
         } else {
@@ -242,7 +281,7 @@ module.exports.updateOneUser = function (user_id, update, callback) {
 };
 
 module.exports.updateManyUsers = function (users_id, update, callback) {
-  if (typeof users_id === 'object' && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e)=> {return mongoose.isValidObjectId(e)}).length == users_id.length) {
+  if (typeof users_id === 'object' && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == users_id.length) {
     users_id = users_id.map((e) => {
       return new ObjectId(e);
     });
@@ -251,8 +290,8 @@ module.exports.updateManyUsers = function (users_id, update, callback) {
         try {
           if (value && value.matchedCount != 0) {
             callback(null, value);
-          }else {
-            callback({msg: 'Utilisateurs non trouvé', type_error: 'no-found'})
+          } else {
+            callback({ msg: 'Utilisateurs non trouvé', type_error: 'no-found' })
           }
         } catch (e) {
           console.log(e);
@@ -270,7 +309,7 @@ module.exports.updateManyUsers = function (users_id, update, callback) {
             type_error: 'duplicate'
           }
           callback(duplicateErrors)
-        }else {
+        } else {
           errors = errors["errors"];
           var text = Object.keys(errors)
             .map((e) => {

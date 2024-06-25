@@ -17,7 +17,7 @@ require("./utils/database");
 const Logger = require('./utils/logger').pino
 
 const database_middleware = require('./middleware/database_middleware')
-const addLogger = require ('./middleware/logger_middleware')
+const addLogger = require('./middleware/logger_middleware')
 
 // Utilise le middleware body-parser pour analyser les données JSON envoyées dans le corps des requêtes
 app.use(bodyparser.json(), addLogger.Log);
@@ -26,16 +26,19 @@ app.use(bodyparser.json(), addLogger.Log);
 const UserController = require('./controllers/UserController');
 
 // Définit une route pour ajouter un utilisateur
-app.post("/user", database_middleware.checkMongooseConnection , UserController.addOneUser);
+app.post("/user", database_middleware.checkMongooseConnection, UserController.addOneUser);
 
 // Définit une route pour ajouter plusieurs utilisateurs
 app.post(`/users`, database_middleware.checkMongooseConnection, UserController.addManyUsers);
 
 // Définit une route pour récupérer un utilisateur
-app.get(`/user/:id`, database_middleware.checkMongooseConnection, UserController.findOneUser);
+app.get(`/user/:id`, database_middleware.checkMongooseConnection, UserController.findOneUserById);
+
+// Définit une route pour récupérer un utilisateur
+app.get(`/user`, database_middleware.checkMongooseConnection, UserController.findOneUser);
 
 // Définit une route pour récupérer plusieurs utilisateurs
-app.get(`/users`, database_middleware.checkMongooseConnection, UserController.findManyUsers);
+app.get(`/users`, database_middleware.checkMongooseConnection, UserController.findManyUserByIds);
 
 // Définit une route pour mettre à jour un utilisateur
 app.put(`/user/:id`, database_middleware.checkMongooseConnection, UserController.updateOneUser);
