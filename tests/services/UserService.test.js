@@ -44,8 +44,8 @@ describe("addManyUsers", () => {
       {
         firstName: "Edouard",
         lastName: "Dupont",
-        email: "edouard.dupont@gmail.com",
-        username: "edupont",
+        email: "Yima.Olukayode@gmail.com",
+        username: "Yoludka",
       },
       {
         firstName: "Edouard",
@@ -58,14 +58,14 @@ describe("addManyUsers", () => {
       {
         firstName: "Edouard",
         lastName: "Dupont",
-        email: "edouard.dupont@gmail.com",
-        username: "edupont",
+        email: "Robert.dupre@gmail.com",
+        username: "robpre",
         testing: true,
         phone: "0645102340",
       },
       {
         firstName: "Edouard",
-        email: "edouard.dupont@gmail.com",
+        email: "ed.dunt@gmail.com",
       },
     ];
 
@@ -78,22 +78,22 @@ describe("addManyUsers", () => {
       {
         firstName: "Louison",
         lastName: "Dupont",
-        email: "edouard.dupont@gmail.com",
-        username: "edupont",
+        email: "Big Lou@gmail.com",
+        username: "L-Diddy",
       },
       {
         firstName: "Jordan",
         lastName: "Dupont",
-        email: "edouard.dupont@gmail.com",
-        username: "La",
+        email: "The Dupontinator@gmail.com",
+        username: "J-Dawg",
         testing: true,
         phone: "0645102340",
       },
       {
         firstName: "Mathis",
         lastName: "Dupont",
-        email: "edouard.dupont@gmail.com",
-        username: "edupont",
+        email: "The Math Maverickt@gmail.com",
+        username: "Matador Mathis",
         testing: true,
         phone: "0645102340",
       },

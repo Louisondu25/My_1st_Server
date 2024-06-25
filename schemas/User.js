@@ -7,21 +7,29 @@ var UserSchema = mongoose.Schema({
   firstName: {
     type: String,
     required: true,
+    index: true,
   },
   // Le champ "lastName" est de type chaîne de caractères et est obligatoire
   lastName: {
     type: String,
     required: true,
+    index: true,
+
   },
   // Le champ "username" est de type chaîne de caractères et est obligatoire
   username: {
     type: String,
     required: true,
+    index: true,
+    unique: true
   },
   // Le champ "email" est de type chaîne de caractères et est obligatoire
   email: {
     type: String,
     required: true,
+    index: true,
+    unique: true
+
   },
   // Le champ "phone" est de type chaîne de caractères mais n'est pas obligatoire
   phone: String,
