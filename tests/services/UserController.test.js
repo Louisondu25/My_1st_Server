@@ -241,11 +241,11 @@ describe('GET - /user/:id', () => {
 
 describe('GET - /user', () => {
     it('Chercher un utilisateur par un champ selectionné -S', (done) => {
-        chai.request(server).get('/user').query({fields: ['username'], values: users[0].username})
-        .end ((err, res) => {
-            res.should.status =(200)
-            done()
-        })
+        chai.request(server).get('/user').query({ fields: ['username'], values: users[0].username })
+            .end((err, res) => {
+                res.should.status = (200)
+                done()
+            })
     })
     it('Chercher un utilisateur par un champ non autorisé -E', (done) => {
         chai.request(server).get('/user').query({ fields: ['firstName'], values: users[0].username })
@@ -262,13 +262,43 @@ describe('GET - /user', () => {
             })
     })
     it('Chercher un utilisateur inexistant -E', (done) => {
-        chai.request(server).get('/user').query({ fields: ['username'], values:'helloguys' })
+        chai.request(server).get('/user').query({ fields: ['username'], values: 'helloguys' })
             .end((err, res) => {
-                res.should.status = (200)
+                res.should.status = (404)
                 done()
             })
     })
 })
+
+describe('GET - /users_by_filters', () => {
+    it('Rechercher des utilisateurs -S', (done) => {
+        chai.request(server).get('/users_by_filters').query({ page: 1, limit: 2 })
+            .end((err, res) => {
+
+                res.should.have.status(200);
+                expect(res.body.results).to.be.an('array');
+                done();
+            });
+    });
+
+    it('Rechercher des utilisateurs avec une query vide -S', (done) => {
+        chai.request(server).get('/users_by_filters')
+            .end((err, res) => {
+                expect(res.status).to.equal(200);
+                expect(res.body.results).to.be.an('array');
+                expect(res.body.count).to.equal(3);
+                done();
+            });
+    });
+
+    it('Recherher plusieur utilisateurs avec une chaine de caracteres dans une page -E', (done) => {
+        chai.request(server).get('/user_by_filters').query({ page: 'une phrase', limit: 3 })
+            .end((err, res) => {
+                res.should.status = (405)
+                done()
+            })
+    });
+});
 
 describe('GET - /users', () => {
     it('Rechercher plusieurs utilisateurs existants -S', (done) => {
@@ -308,6 +338,7 @@ describe('GET - /users', () => {
             });
     });
 });
+
 
 describe("DELETE - /user", () => {
     it("Supprimer un utilisateur. - S", (done) => {

@@ -89,6 +89,51 @@ module.exports.findManyUserByIds = function (req, res) {
     })
 }
 
+module.exports.findOneUser = function (req, res) {
+    req.log.info('Rechercher un utilisateurs avec un champs choisi')
+    var arg = req.query.id
+    if (arg && !Array.isArray(arg))
+        arg = [arg]
+    UserService.findOneUser(arg, req.query.value, function (err, value) {
+        if (err && err.type_error == "no-found") {
+            res.statusCode = 404
+            res.send(err)
+        }
+        else if (err && err.type_error == "validator") {
+            res.statusCode = 405
+            res.send(err)
+        }
+        else if (err && err.type_error == "duplicate") {
+            res.statusCode = 405
+            res.send(err)
+        }
+        else {
+            res.statusCode = 201
+            res.send(value)
+        }
+    })
+}
+
+module.exports.findManyUsers = function (req, res) {
+    req.log.info('Rechercher des utilisateurs')
+    var page = req.query.page
+    var limit = req.query.limit
+    var search = req.query.q
+    UserService.findManyUsers(search, page, limit, function (err, value) {
+        if (err && err.type_error == 'no-valid') {
+            res.statusCode = (405)
+            res.send(err)
+        } else if (err && err.type_error == 'error-mongo') {
+            res.statusCode = (500)
+            res.send(err)
+        }
+        else {
+            res.statusCode = (200)
+            res.send(value)
+        }
+    })
+}
+
 // La fonction permet de modifier un utilisateur.
 module.exports.updateOneUser = function (req, res) {
     req.log.info('Modifier un utilisateur')
@@ -128,7 +173,7 @@ module.exports.updateManyUsers = function (req, res) {
             res.statusCode = 404
             res.send(err)
         }
-        else if (err && err.type_error == "no-valid" || err.type_error == "validator" || err.type_error == "duplicate") {
+        else if (err && (err.type_error == "no-valid" || err.type_error == "validator" || err.type_error == "duplicate")) {
             res.statusCode = 405
             res.send(err)
         }
@@ -138,31 +183,6 @@ module.exports.updateManyUsers = function (req, res) {
         }
         else {
             res.statusCode = 200
-            res.send(value)
-        }
-    })
-}
-
-module.exports.findOneUser = function (req, res) {
-    req.log.info('Rechercher un utilisateurs avec un champs choisi')
-    var arg = req.query.id
-    if (arg && !Array.isArray(arg))
-        arg = [arg]
-    UserService.findOneUser(arg,req.query.value, function(err, value) {
-        if (err && err.type_error == "no-found") {
-            res.statusCode = 404
-            res.send(err)
-        }
-        else if (err && err.type_error == "validator") {
-            res.statusCode = 405
-            res.send(err)
-        }
-        else if (err && err.type_error == "duplicate") {
-            res.statusCode = 405
-            res.send(err)
-        }
-        else {
-            res.statusCode = 201
             res.send(value)
         }
     })

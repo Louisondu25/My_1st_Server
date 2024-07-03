@@ -115,7 +115,7 @@ module.exports.findOneUserById = function (user_id, callback) {
             });
           }
         } catch (e) {
-          console.log(e);
+
         }
       })
       .catch((err) => {
@@ -188,7 +188,7 @@ module.exports.findManyUserByIds = function (users_id, callback) {
             });
           }
         } catch (e) {
-          console.log(e);
+
           callback(e)
         }
       })
@@ -223,6 +223,35 @@ module.exports.findManyUserByIds = function (users_id, callback) {
   }
 };
 
+module.exports.findManyUsers = function (search, page, limit, callback) {
+  page = !page ? 1 : parseInt(page)
+  limit = !limit ? 1 : parseInt(limit)
+  if (typeof page !== "number" || typeof limit !== "number" || isNaN(page) || isNaN(page)) {
+    callback({ msg: `format de ${typeof page !== "number" ? "page" : "limit"} est incorrect`, type_error: "no-valid" })
+  } else {
+    var query_mongo = search ? {
+      $or: _.map(['firstname', 'lastname', 'username', 'email', 'phone'], (e) => {
+        return { [e]: { $regex: search, $options: 'i' } };
+      })
+    } : {};
+    User.countDocuments(query_mongo).then((value) => {
+      if (value > 0) {
+        const skip = ((page - 1) * limit)
+        User.find(query_mongo, null, { skip: skip, limit: limit }).then((results) => {
+          callback(null, {
+            count: value,
+            results: results
+          })
+        })
+      } else {
+        callback(null, { count: 0, results: [] })
+      }
+    }).catch((e) => {
+      callback(e)
+    })
+  }
+}
+
 module.exports.updateOneUser = function (user_id, update, callback) {
   if (user_id && mongoose.isValidObjectId(user_id)) {
     User.findByIdAndUpdate(new ObjectId(user_id), update, {
@@ -238,7 +267,7 @@ module.exports.updateOneUser = function (user_id, update, callback) {
             callback({ msg: "Utilisateur non trouvé.", type_error: "no-found" });
           }
         } catch (e) {
-          console.log(e);
+
           callback(e);
         }
       })
@@ -294,7 +323,7 @@ module.exports.updateManyUsers = function (users_id, update, callback) {
             callback({ msg: 'Utilisateurs non trouvé', type_error: 'no-found' })
           }
         } catch (e) {
-          console.log(e);
+
           callback(e);
         }
       })
@@ -349,7 +378,7 @@ module.exports.deleteOneUser = function (user_id, callback) {
               type_error: "no-found",
             });
         } catch (e) {
-          console.log(e);
+
           callback(e);
         }
       })

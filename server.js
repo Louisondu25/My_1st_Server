@@ -31,13 +31,16 @@ app.post("/user", database_middleware.checkMongooseConnection, UserController.ad
 // Définit une route pour ajouter plusieurs utilisateurs
 app.post(`/users`, database_middleware.checkMongooseConnection, UserController.addManyUsers);
 
-// Définit une route pour récupérer un utilisateur
+// Définit une route pour récupérer un utilisateur par Id
 app.get(`/user/:id`, database_middleware.checkMongooseConnection, UserController.findOneUserById);
 
 // Définit une route pour récupérer un utilisateur
 app.get(`/user`, database_middleware.checkMongooseConnection, UserController.findOneUser);
 
-// Définit une route pour récupérer plusieurs utilisateurs
+// Définit une route pour récupérer plusieur utilisateurs
+app.get(`/users_by_filters`, database_middleware.checkMongooseConnection, UserController.findManyUsers);
+
+// Définit une route pour récupérer plusieurs utilisateurs par Ids
 app.get(`/users`, database_middleware.checkMongooseConnection, UserController.findManyUserByIds);
 
 // Définit une route pour mettre à jour un utilisateur

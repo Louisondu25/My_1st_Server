@@ -18,7 +18,7 @@ describe("addOneUser", () => {
       expect(value).to.be.a("object");
       expect(value).to.haveOwnProperty("_id");
       id_user_valid = value._id;
-      //console.log(value)
+      //
     });
   });
   it("Utilisateur incorrect. (Sans firstName) - E", () => {
@@ -167,6 +167,29 @@ describe("findManyUserByIds", () => {
     });
   });
 });
+
+describe('findManyUsers', () => {
+  it('Retourne 3 utilisateurs  sur les 4 - S ', (done) => {
+    UserService.findManyUsers(null, 1, 3, function (err, value) {
+      // 
+
+      expect(value).to.haveOwnProperty('count')
+      expect(value).to.haveOwnProperty('results')
+      expect(value['count']).to.be.equal(4)
+      expect(value['results']).lengthOf(3)
+      expect(err).to.be.null
+      done()
+    })
+  })
+  it('Envoi chaine de caractere sur page - E ', (done) => {
+    UserService.findManyUsers(null, 'hi', 3, function (err, value) {
+      expect(err).to.haveOwnProperty('type_error')
+      expect(err['type_error']).to.be.equal('no-valid')
+      expect(value).to.be.undefined
+      done()
+    })
+  })
+})
 
 describe("updateOneUser", () => {
   it("Modifier un utilisateur correct. - S", (done) => {
