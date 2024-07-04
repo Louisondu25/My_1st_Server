@@ -226,7 +226,7 @@ module.exports.findManyUserByIds = function (users_id, callback) {
 module.exports.findManyUsers = function (search, page, limit, callback) {
   page = !page ? 1 : parseInt(page)
   limit = !limit ? 1 : parseInt(limit)
-  if (typeof page !== "number" || typeof limit !== "number" || isNaN(page) || isNaN(page)) {
+  if (typeof page !== "number" || typeof limit !== "number" || isNaN(page) || isNaN(limit)) {
     callback({ msg: `format de ${typeof page !== "number" ? "page" : "limit"} est incorrect`, type_error: "no-valid" })
   } else {
     var query_mongo = search ? {
