@@ -15,7 +15,8 @@ describe("POST - /user/", () => {
             firstName: "luf",
             lastName: "Us",
             username: "dwarfSlayer",
-            email: "lutfu.us@gmail.com"
+            email: "lutfu.us@gmail.com",
+            password: "higuys"
         }).end((err, res) => {
             res.should.have.status(201)
             //  expect(res).to.be.a('object')
@@ -27,7 +28,8 @@ describe("POST - /user/", () => {
         chai.request(server).post('/user').send({
             lastName: 'Us',
             username: 'dwarfSlayr',
-            email: 'lutfu.us@gmil.com'
+            email: 'lutfu.us@gmil.com',
+            password: "higuys"
         }).end((err, res) => {
             res.should.have.status(405)
             done()
@@ -38,7 +40,8 @@ describe("POST - /user/", () => {
             firstName: "luf",
             lastName: "Us",
             username: "dwarfSlayer",
-            email: "lutfu.us@gmai.com"
+            email: "lutfu.us@gmai.com",
+            password: "higuys"
         }).end((err, res) => {
             res.should.have.status(405)
             done()
@@ -49,7 +52,8 @@ describe("POST - /user/", () => {
             firstName: "luffu",
             lastName: "",
             username: "dwarfSlaye",
-            email: "lufu.us@gmai.com"
+            email: "lufu.us@gmai.com",
+            password: "higuys"
         }).end((err, res) => {
             res.should.have.status(405)
             done()
@@ -63,14 +67,16 @@ describe("POST - /users", () => {
             firstName: "luf",
             lastName: "Us",
             username: "dwathttvrfSlayer",
-            email: "lutfgfbu.us@gmail.com"
+            email: "lutfgfbu.us@gmail.com",
+            password: "higuys"
         },
 
         {
             firstName: "luf",
             lastName: "Us",
             username: "dwgfbarfSlayer",
-            email: "lutgbffu.us@gmail.com"
+            email: "lutgbffu.us@gmail.com",
+            password: "higuys"
         }]
         ).end((err, res) => {
             res.should.have.status(201)
@@ -84,13 +90,15 @@ describe("POST - /users", () => {
             {
                 lastName: 'Us',
                 username: 'dwarfSlayr',
-                email: 'lutfu.us@gmil.com'
+                email: 'lutfu.us@gmil.com',
+                password: "higuys"
             },
 
             {
                 lastName: 'Us',
                 username: 'dwarfSlaycdsr',
-                email: 'lutffqzdsu.us@gmil.com'
+                email: 'lutffqzdsu.us@gmil.com',
+                password: "higuys"
             }
         ]).end((err, res) => {
             res.should.have.status(405)
@@ -102,7 +110,8 @@ describe("POST - /users", () => {
             firstName: "luf",
             lastName: "Us",
             username: "dwarfSlayer",
-            email: "lutfu.us@gmai.com"
+            email: "lutfu.us@gmai.com",
+            password: "higuys"
         }]).end((err, res) => {
             res.should.have.status(405)
             done()
@@ -113,7 +122,8 @@ describe("POST - /users", () => {
             firstName: "luffu",
             lastName: "",
             username: "dwarfSlaye",
-            email: "lufu.us@gmai.com"
+            email: "lufu.us@gmai.com",
+            password: "higuys"
         }]).end((err, res) => {
             res.should.have.status(405)
             done()

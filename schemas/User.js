@@ -29,8 +29,21 @@ var UserSchema = mongoose.Schema({
     required: true,
     index: true,
     unique: true
-
   },
+  password: {
+    type: String,
+    required: true,
+  },
+  Token: {
+    type: String,
+    required: false,
+  },
+  Token: {
+    type: String,
+    enum: ['active','inactive'],
+    required: false,
+  },
+
   // Le champ "phone" est de type chaîne de caractères mais n'est pas obligatoire
   phone: String,
 });

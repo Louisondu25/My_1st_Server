@@ -3,13 +3,19 @@ const _ = require("lodash");
 const async = require("async");
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
+const bcrypt = require('bcryptjs')
+const SALT_WORK_FACTOR = 10
 
 var User = mongoose.model("User", UserSchema);
 
 User.createIndexes()
 
-module.exports.addOneUser = async function (user, callback) {
+module.exports.addOneUser = async function (user, options, callback) {
   try {
+    const salt = await bcrypt.genSalt(SALT_WORK_FACTOR)
+    if (user && user.password) {
+      user.password = await bcrypt.hash(user.password, salt)
+    }
     var new_user = new User(user);
     var errors = new_user.validateSync();
     if (errors) {
@@ -47,12 +53,16 @@ module.exports.addOneUser = async function (user, callback) {
   }
 };
 
-module.exports.addManyUsers = async function (users, callback) {
+module.exports.addManyUsers = async function (users, options, callback) {
   var errors = [];
 
   // Vérifier les erreurs de validation
   for (var i = 0; i < users.length; i++) {
     var user = users[i];
+    const salt = await bcrypt.genSalt(SALT_WORK_FACTOR)
+    if (user && user.password) {
+      user.password = await bcrypt.hash(user.password, salt)
+    }
     var new_user = new User(user);
     var error = new_user.validateSync();
     if (error) {
@@ -78,7 +88,7 @@ module.exports.addManyUsers = async function (users, callback) {
   } else {
     try {
       // Tenter d'insérer les utilisateurs
-      const data = await User.insertMany(users, { ordered: false });
+      const data = await User.insertMany(users, null, { ordered: false });
       callback(null, data);
     } catch (error) {
       if (error.code === 11000) { // Erreur de duplicité
@@ -101,9 +111,9 @@ module.exports.addManyUsers = async function (users, callback) {
   }
 };
 
-module.exports.findOneUserById = function (user_id, callback) {
+module.exports.findOneUserById = function (user_id, options, callback) {
   if (user_id && mongoose.isValidObjectId(user_id)) {
-    User.findById(user_id)
+    User.findById(user_id, null)
       .then((value) => {
         try {
           if (value) {
@@ -129,7 +139,7 @@ module.exports.findOneUserById = function (user_id, callback) {
   }
 };
 
-module.exports.findOneUser = function (tab_field, value, callback) {
+module.exports.findOneUser = function (tab_field, value, options, callback) {
   var field_unique = ['username', 'email']
 
   if (tab_field && Array.isArray(tab_field) && value && _.filter(tab_field, (e) => {
@@ -139,7 +149,7 @@ module.exports.findOneUser = function (tab_field, value, callback) {
     _.forEach(tab_field, (e) => {
       obj_find.push({ [e]: value })
     })
-    User.findOne({ $or: obj_find }).then((value) => {
+    User.findOne({ $or: obj_find }, null).then((value) => {
       if (value) {
         callback(null, value.toObject())
       } else {
@@ -167,7 +177,7 @@ module.exports.findOneUser = function (tab_field, value, callback) {
   }
 }
 
-module.exports.findManyUserByIds = function (users_id, callback) {
+module.exports.findManyUserByIds = function (users_id, options, callback) {
   if (
     users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => {
       return mongoose.isValidObjectId(e);
@@ -176,7 +186,7 @@ module.exports.findManyUserByIds = function (users_id, callback) {
     users_id = users_id.map((e) => {
       return new ObjectId(e);
     });
-    User.find({ _id: users_id })
+    User.find({ _id: users_id }, null)
       .then((value) => {
         try {
           if (value && Array.isArray(value) && value.length != 0) {
@@ -223,7 +233,7 @@ module.exports.findManyUserByIds = function (users_id, callback) {
   }
 };
 
-module.exports.findManyUsers = function (search, page, limit, callback) {
+module.exports.findManyUsers = function (search, page, limit, options, callback) {
   page = !page ? 1 : parseInt(page)
   limit = !limit ? 1 : parseInt(limit)
   if (typeof page !== "number" || typeof limit !== "number" || isNaN(page) || isNaN(limit)) {
@@ -252,8 +262,12 @@ module.exports.findManyUsers = function (search, page, limit, callback) {
   }
 }
 
-module.exports.updateOneUser = function (user_id, update, callback) {
+module.exports.updateOneUser = async function (user_id, update, options, callback) {
   if (user_id && mongoose.isValidObjectId(user_id)) {
+    const salt = await bcrypt.genSalt(SALT_WORK_FACTOR)
+    if (update && update.password) {
+      update.password = await bcrypt.hash(update.password, salt)
+    }
     User.findByIdAndUpdate(new ObjectId(user_id), update, {
       returnDocument: "after",
       runValidators: true,
@@ -309,11 +323,15 @@ module.exports.updateOneUser = function (user_id, update, callback) {
   }
 };
 
-module.exports.updateManyUsers = function (users_id, update, callback) {
+module.exports.updateManyUsers = async function (users_id, update, options, callback) {
   if (typeof users_id === 'object' && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => { return mongoose.isValidObjectId(e) }).length == users_id.length) {
     users_id = users_id.map((e) => {
       return new ObjectId(e);
-    });
+    })
+    const salt = await bcrypt.genSalt(SALT_WORK_FACTOR)
+    if (update && update.password) {
+      update.password = await bcrypt.hash(update.password, salt)
+    }
     User.updateMany({ _id: { $in: users_id } }, update, { runValidators: true })
       .then((value) => {
         try {
@@ -366,7 +384,7 @@ module.exports.updateManyUsers = function (users_id, update, callback) {
   }
 };
 
-module.exports.deleteOneUser = function (user_id, callback) {
+module.exports.deleteOneUser = function (user_id, options, callback) {
   if (user_id && mongoose.isValidObjectId(user_id)) {
     User.findByIdAndDelete(user_id)
       .then((value) => {
@@ -393,14 +411,14 @@ module.exports.deleteOneUser = function (user_id, callback) {
   }
 };
 
-module.exports.deleteManyUsers = function (users_id, callback) {
+module.exports.deleteManyUsers = function (users_id, options, callback) {
   if (users_id && Array.isArray(users_id) && users_id.length > 0 && users_id.filter((e) => {
     return mongoose.isValidObjectId(e);
   }).length == users_id.length) {
     users_id = users_id.map((e) => {
       return new ObjectId(e);
     });
-    User.deleteMany({ _id: users_id })
+    User.deleteMany({ _id: users_id }, null,)
       .then((value) => {
         callback(null, value);
       })

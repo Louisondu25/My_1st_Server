@@ -24,6 +24,8 @@ app.use(bodyparser.json(), addLogger.Log);
 
 // Importe le contrôleur pour les utilisateurs
 const UserController = require('./controllers/UserController');
+// Importe le contrôleur pour les Articles
+const ArticleController = require('./controllers/ArticleController');
 
 // Définit une route pour ajouter un utilisateur
 app.post("/user", database_middleware.checkMongooseConnection, UserController.addOneUser);
@@ -54,6 +56,36 @@ app.delete(`/user/:id`, database_middleware.checkMongooseConnection, UserControl
 
 // Définit une route pour supprimer plusieurs utilisateurs
 app.delete(`/users`, database_middleware.checkMongooseConnection, UserController.deleteManyUsers);
+
+// Définit une route pour ajouter un utilisateur
+app.post("/article", database_middleware.checkMongooseConnection, ArticleController.addOneArticle);
+
+// Définit une route pour ajouter plusieurs utilisateurs
+app.post(`/articles`, database_middleware.checkMongooseConnection, ArticleController.addManyArticles);
+
+// Définit une route pour récupérer un utilisateur par Id
+app.get(`/article/:id`, database_middleware.checkMongooseConnection, ArticleController.findOneArticleById);
+
+// Définit une route pour récupérer un utilisateur
+app.get(`/article`, database_middleware.checkMongooseConnection, ArticleController.findOneArticle);
+
+// Définit une route pour récupérer plusieur utilisateurs
+app.get(`/articles_by_filters`, database_middleware.checkMongooseConnection, ArticleController.findManyArticles);
+
+// Définit une route pour récupérer plusieurs utilisateurs par Ids
+app.get(`/articles`, database_middleware.checkMongooseConnection, ArticleController.findManyArticleByIds);
+
+// Définit une route pour mettre à jour un utilisateur
+app.put(`/article/:id`, database_middleware.checkMongooseConnection, ArticleController.updateOneArticle);
+
+// Définit une route pour mettre à jour plusieurs utilisateurs
+app.put(`/articles`, database_middleware.checkMongooseConnection, ArticleController.updateManyArticles);
+
+// Définit une route pour supprimer un utilisateur
+app.delete(`/article/:id`, database_middleware.checkMongooseConnection, ArticleController.deleteOneArticle);
+
+// Définit une route pour supprimer plusieurs utilisateurs
+app.delete(`/articles`, database_middleware.checkMongooseConnection, ArticleController.deleteManyArticles);
 
 // Démarre le serveur et affiche un message de log
 app.listen(config.port, () => {
