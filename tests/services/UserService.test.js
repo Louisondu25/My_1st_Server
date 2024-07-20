@@ -2,6 +2,7 @@ const UserService = require("../../services/UserService");
 const chai = require("chai");
 let expect = chai.expect;
 const _ = require("lodash");
+const passport = require("passport");
 var id_user_valid = "";
 var tab_id_users = [];
 var users = []

@@ -6,6 +6,22 @@ const ObjectId = mongoose.Types.ObjectId;
 
 var Article = mongoose.model("Article", ArticleSchema);
 
+module.exports.loginUser = async function (username, password, options, callback) {
+    module.exports.findOneUser(['name', 'description'], username, null, async (err, value) => {
+        if (err)
+            callback(err)
+        else {
+            if (bcrypt.compareSync(password, value.password)) {
+                var token = TokenUtils.createToken({ _id: value._id }, null)
+                callback(null, { ...value, token: token })
+            }
+            else {
+                callback({ msg: "La comparaison des mots de passe est fausse.", type_error: "no-comparaison" })
+            }
+        }
+    })
+}
+
 module.exports.addOneArticle = async function (article, options, callback) {
     try {
         var new_article = new Article(article);

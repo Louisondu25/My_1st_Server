@@ -1,5 +1,27 @@
 const ArticleService = require('../services/ArticleService')
 
+
+// La fonction permet de connecter un utilisateur.
+module.exports.loginUser = function (req, res, next) {
+    passport.authenticate('login', { badRequestMessage: "Les champs sont manquants." }, async function (err, user) {
+        if (err) {
+            res.statusCode = 401
+            return res.send({ msg: "Le nom d'utilisateur ou mot de passe est incorrect.", type_error: "no-valid-login" })
+        }
+        else {
+            req.logIn(user, async function (err) {
+                if (err) {
+                    res.statusCode = 500
+                    return res.send({ msg: "Problème d'authentification sur le serveur.", type_error: "internal" })
+                }
+                else {
+                    return res.send(user)
+                }
+            });
+        }
+    })(req, res, next)
+}
+
 // La fonction permet d'ajouter un utilisateur.
 module.exports.addOneArticle = function (req, res) {
     req.log.info('Creation d\'un Article')
