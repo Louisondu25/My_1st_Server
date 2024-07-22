@@ -94,7 +94,7 @@ describe("POST - /users", () => {
             email: "lutgbffu.us@gmail.com",
             password: "higuys"
         }]
-        ).auth(token, { type: 'bearer' }).end((err, res) => {
+        ).end((err, res) => {
             res.should.have.status(201)
             users = [...users, ...res.body]
             done()
@@ -115,7 +115,7 @@ describe("POST - /users", () => {
                 email: 'lutffqzdsu.us@gmil.com',
                 password: "higuys"
             }
-        ]).auth(token, { type: 'bearer' }).auth(token, { type: 'bearer' }).end((err, res) => {
+        ]).end((err, res) => {
             res.should.have.status(405)
             done()
         })
@@ -145,7 +145,6 @@ describe("POST - /users", () => {
         })
     })
 })
-
 
 
 describe('PUT - /user/:id', () => {
