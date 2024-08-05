@@ -42,6 +42,9 @@ const ArticleController = require('./controllers/ArticleController');
 // Définit une route pour connecter un utilisateur
 app.post("/login", database_middleware.checkMongooseConnection, UserController.loginUser);
 
+// Définit une route pour connecter un utilisateur
+app.post("/logout", database_middleware.checkMongooseConnection, passport.authenticate('jwt', { session: false }), UserController.logoutUser);
+
 //<-------------------------------------------------- Utilisateurs------------------------------------------------------------------------>
 // Définit une route pour ajouter un utilisateur
 app.post("/user", database_middleware.checkMongooseConnection, UserController.addOneUser);
