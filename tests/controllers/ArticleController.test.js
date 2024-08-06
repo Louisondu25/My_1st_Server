@@ -458,6 +458,7 @@ describe("DELETE - /articles", () => {
             })
     })
 })
+
 describe('Gestion des utilisateurs.', () => {
     it('Supprimer des Utilisateurs fictifs', (done) => {
         UserService.deleteManyUsers(tab_id_users, null, function (err, value) {
